@@ -28,7 +28,7 @@ fun Agenda(navController: NavController) {
             .padding(16.dp)
     ) {
         Text(
-            text = "Calendario",
+            text = "Calendarios",
             fontSize = 24.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
