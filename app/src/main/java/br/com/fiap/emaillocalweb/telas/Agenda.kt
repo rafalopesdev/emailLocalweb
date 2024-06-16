@@ -2,23 +2,38 @@ package br.com.fiap.emaillocalweb.telas
 
 import CalendarView
 import androidx.compose.foundation.background
-import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import br.com.fiap.emaillocalweb.components.NavBar
-import generateMonthsOfYear
-import java.util.*
+import androidx.navigation.NavController
+import br.com.fiap.emaillocalweb.AgendaDao
+import br.com.fiap.emaillocalweb.AgendaDb
+import br.com.fiap.emaillocalweb.AgendaModel
 import com.google.accompanist.pager.*
+import generateMonthsOfYear
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import java.util.*
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun Agenda(navController: NavController) {
+    val context = LocalContext.current
+    val agendaDao = remember { AgendaDb.getDatabase(context).agendaDao() }
+
     val monthsOfYear = generateMonthsOfYear()
     val pagerState = rememberPagerState(initialPage = getCurrentMonthIndex())
 
@@ -26,16 +41,17 @@ fun Agenda(navController: NavController) {
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 56.dp) // Espaço para o NavBar
     ) {
         Text(
-            text = "Calendarios",
+            text = "Calendários",
             fontSize = 24.sp,
             modifier = Modifier.padding(bottom = 16.dp)
         )
-
         Box(
             modifier = Modifier
-                .height(300.dp)
+                .height(270.dp)
                 .fillMaxWidth()
                 .background(Color(0xFFD20B3D))
         ) {
@@ -46,190 +62,157 @@ fun Agenda(navController: NavController) {
             ) { page ->
                 CalendarView(monthsOfYear[page])
             }
+
         }
         Text(
-            text = "Outro conteúdo abaixo do pager",
-            modifier = Modifier.padding(top = 16.dp)
+            text = "Arraste >>",
+            fontSize = 14.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End,
+            color = Color.Gray
         )
-        NavBar(navController)
+
+        Text(
+            text = "Agendar seu evento",
+            fontSize = 24.sp,
+        )
+        AgendaScreen(agendaDao = agendaDao)
     }
 }
 
-// Função auxiliar para obter o índice do mês atual
+@Composable
+fun AgendaScreen(agendaDao: AgendaDao) {
+    var agendaList by remember { mutableStateOf<List<AgendaModel>>(emptyList()) }
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(Unit) {
+        coroutineScope.launch {
+            val list = agendaDao.listarAgenda()
+            if (list.isNotEmpty()) {
+                agendaList = list
+            } else {
+                println("Agenda list is empty")
+            }
+        }
+    }
+
+    var data by remember { mutableStateOf("") }
+    var hora by remember { mutableStateOf("") }
+    var evento by remember { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = data,
+                onValueChange = { data = it },
+                label = { Text("Data") },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(text = "dd/mm/aaaa")}
+            )
+            OutlinedTextField(
+                value = hora,
+                onValueChange = { hora = it },
+                label = { Text("Hora") },
+                modifier = Modifier.weight(1f),
+                placeholder = { Text(text = "HH:mm")}
+            )
+        }
+        OutlinedTextField(
+            value = evento,
+            onValueChange = { evento = it },
+            label = { Text("Evento") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Spacer(modifier = Modifier.height(5.dp))
+        Text(
+            text = "*Preencha todos os campos",
+            fontSize = 12.sp,
+            modifier = Modifier.fillMaxWidth(),
+            textAlign = TextAlign.End,
+            color = Color.Gray
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        val interactionSourceEntrar = remember { MutableInteractionSource() }
+        val isPressedEntrar = interactionSourceEntrar.collectIsPressedAsState().value
+        val allFieldsFilled = data.isNotEmpty() && hora.isNotEmpty() && evento.isNotEmpty()
+        Button(
+            onClick = {
+                val novoEvento = AgendaModel(data = data, hora = hora, evento = evento)
+                coroutineScope.launch {
+                    agendaDao.salvar(novoEvento)
+                    val updatedList = agendaDao.listarAgenda()
+                    agendaList = updatedList
+                }
+                data = ""
+                hora = ""
+                evento = ""
+            },
+            modifier = Modifier.align(Alignment.End),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = if (isPressedEntrar) Color(0xFF253645) else Color(0xFFD20B3D),
+                contentColor = Color.White
+            ),
+            enabled = allFieldsFilled,
+        ) {
+            Text("Agendar")
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        if (agendaList.isNotEmpty()) {
+            AgendaList(agendaList = agendaList, agendaDao = agendaDao, coroutineScope = coroutineScope, updateAgendaList = { agendaList = it })
+        } else {
+            Text(text = "Nenhum evento agendado",
+                modifier = Modifier.padding(8.dp))
+        }
+    }
+}
+
+@Composable
+fun AgendaList(agendaList: List<AgendaModel>, agendaDao: AgendaDao, coroutineScope: CoroutineScope, updateAgendaList: (List<AgendaModel>) -> Unit) {
+    Column {
+        for (evento in agendaList) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(text = "${evento.data} - ${evento.hora}: ${evento.evento}")
+                IconButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            agendaDao.excluir(evento)
+                            val updatedList = agendaDao.listarAgenda()
+                            updateAgendaList(updatedList)
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Excluir",
+                        tint = Color.Gray,
+                        modifier = Modifier
+                            .padding(0.dp)
+                            .align(Alignment.Top)
+                    )
+                }
+            }
+            Divider()
+        }
+    }
+}
+
+
+
 fun getCurrentMonthIndex(): Int {
     val calendar = Calendar.getInstance()
     val currentMonth = calendar.get(Calendar.MONTH)
     return currentMonth
 }
-
-
-//@Composable
-//fun Agenda (navController: NavController) {
-//    var data by remember { mutableStateOf("") }
-//    var horario by remember { mutableStateOf("") }
-//    var evento by remember { mutableStateOf("") }
-//    var eventoAgendado by remember { mutableStateOf("") }
-//    val interactionSourceEntrar = remember { MutableInteractionSource() }
-//    val isPressedEntrar = interactionSourceEntrar.collectIsPressedAsState().value
-//
-//    Box(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(top = 8.dp, start = 8.dp, end = 8.dp),
-//        contentAlignment = Alignment.Center
-//    ) {
-//
-//        Column {
-//
-//            Row (verticalAlignment = Alignment.CenterVertically){
-//                Image(painter = painterResource(id = R.drawable.logolocaw),
-//                    contentDescription = "imagem logo",
-//                    modifier = Modifier
-//                        .size(60.dp)
-//                        .padding(start = 10.dp)
-//                )
-//                Text(
-//                    text = "Agende seu Evento",
-//                    modifier = Modifier.fillMaxWidth(),
-//                    fontSize = 25.sp,
-//                    color = Color(0xFF253645),
-//                    fontWeight = FontWeight.Bold,
-//                    textAlign = TextAlign.Center
-//                )}
-//            Spacer(modifier = Modifier.height(20.dp))
-//
-//            Card(
-//                modifier = Modifier.fillMaxWidth(),
-//                //elevation = 4.dp,
-//                colors = CardDefaults.cardColors(
-//                    containerColor = Color(0xFF253645)),
-//
-//            ) {
-//                Column(modifier = Modifier.padding(16.dp)) {
-//
-//                    Text(
-//                        text = "Dados do Evento",
-//                        fontWeight = FontWeight.Bold,
-//                        color = Color.White
-//                    )
-//                    OutlinedTextField(
-//                        value = data,
-//                        onValueChange = { data = it },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 16.dp),
-//
-//                        placeholder = {
-//                            Text(text = "Data do evento",
-//                                color = Color.White
-//                            )
-//                        },
-//                        label = {
-//                            Text(text = "Data",
-//                                color = Color.White
-//                            )
-//                        },
-//                        keyboardOptions = KeyboardOptions(
-//                            keyboardType = KeyboardType.Text
-//                        ),
-//                        textStyle = LocalTextStyle.current.copy(color = Color.White),
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedBorderColor = Color(0xFFD20B3D),
-//                            unfocusedBorderColor = Color.White,
-//                            cursorColor = Color.White
-//                        )
-//
-//                    )
-//                    OutlinedTextField(
-//                        value = horario,
-//                        onValueChange = { horario = it },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 16.dp),
-//                        placeholder = {
-//                            Text(text = "Horário do evento",
-//                                color = Color.White)
-//                        },
-//                        label = {
-//                            Text(text = "Horário",
-//                                color = Color.White)
-//                        },
-//                        keyboardOptions = KeyboardOptions(
-//                            keyboardType = KeyboardType.Text
-//                        ),
-//                        textStyle = LocalTextStyle.current.copy(color = Color.White),
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedBorderColor = Color(0xFFD20B3D),
-//                            unfocusedBorderColor = Color.White,
-//                            cursorColor = Color.White
-//                        )
-//                    )
-//                    OutlinedTextField(
-//                        value = evento,
-//                        onValueChange = { evento = it },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 16.dp),
-//                        placeholder = {
-//                            Text(text = "Descrição do evento",
-//                                color = Color.White)
-//                        },
-//                        label = {
-//                            Text(text = "Evento",
-//                                color = Color.White)
-//                        },
-//                        keyboardOptions = KeyboardOptions(
-//                            keyboardType = KeyboardType.Text
-//                        ),
-//                        textStyle = LocalTextStyle.current.copy(color = Color.White),
-//                        colors = OutlinedTextFieldDefaults.colors(
-//                            focusedBorderColor = Color(0xFFD20B3D),
-//                            unfocusedBorderColor = Color.White,
-//                            cursorColor = Color.White
-//                        )
-//                    )
-//                    Button(
-//                        onClick = {
-//                            eventoAgendado = "$evento agendado no dia $data às $horario"
-//                        },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .padding(top = 32.dp),
-//                        colors = ButtonDefaults.buttonColors(
-//                            containerColor = if (isPressedEntrar) Color(0xFF253645) else Color(0xFFD20B3D),
-//                            contentColor = Color.White
-//                        ),
-//                    ) {
-//                        Text(text = "AGENDAR")
-//                    }
-//                }
-//            }
-//
-//            Spacer(modifier = Modifier.height(16.dp))
-//
-//            Card(
-//                modifier = Modifier.fillMaxWidth(),
-//                colors = CardDefaults.cardColors(
-//                    containerColor = Color(0xFFD20B3D)
-//                ),
-//            ) {
-//                Column(modifier = Modifier.padding(10.dp)) {
-//                    Text(
-//                        text = "Evento agendado",
-//                        fontSize = 18.sp,
-//                        fontWeight = FontWeight.Bold,
-//                        color = Color.White
-//                    )
-//                    Spacer(modifier = Modifier.height(16.dp))
-//                    Text(
-//                        text = eventoAgendado,
-//                        fontSize = 16.sp,
-//                        color = Color.White
-//                    )
-//                }
-//            }
-//            NavBar(navController)
-//        }
-//    }
-//}
-
