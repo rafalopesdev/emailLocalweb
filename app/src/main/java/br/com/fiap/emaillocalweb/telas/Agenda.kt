@@ -3,8 +3,6 @@ package br.com.fiap.emaillocalweb.telas
 import CalendarView
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -21,10 +19,7 @@ import br.com.fiap.emaillocalweb.AgendaDb
 import br.com.fiap.emaillocalweb.AgendaModel
 import com.google.accompanist.pager.*
 import generateMonthsOfYear
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 
 @OptIn(ExperimentalPagerApi::class)
@@ -41,7 +36,7 @@ fun Agenda(navController: NavController) {
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
-            .padding(bottom = 56.dp) // Espaço para o `
+            .padding(bottom = 56.dp) // Espaço para o NavBar
     ) {
         Text(
             text = "Calendários",
@@ -81,9 +76,13 @@ fun AgendaScreen(agendaDao: AgendaDao) {
     LaunchedEffect(Unit) {
         coroutineScope.launch {
             try {
-                agendaList = agendaDao.listarAgenda()
+                val list = agendaDao.listarAgenda()
+                if (list.isNotEmpty()) {
+                    agendaList = list
+                } else {
+                    println("Agenda list is empty")
+                }
             } catch (e: Exception) {
-                // Log the error or show a message
                 e.printStackTrace()
             }
         }
@@ -125,11 +124,13 @@ fun AgendaScreen(agendaDao: AgendaDao) {
                 coroutineScope.launch {
                     try {
                         agendaDao.salvar(novoEvento)
-                        agendaList = withContext(Dispatchers.IO) {
-                            agendaDao.listarAgenda()
+                        val updatedList = agendaDao.listarAgenda()
+                        if (updatedList.isNotEmpty()) {
+                            agendaList = updatedList
+                        } else {
+                            println("Updated agenda list is empty")
                         }
                     } catch (e: Exception) {
-                        // Log the error or show a message
                         e.printStackTrace()
                     }
                 }
@@ -142,21 +143,26 @@ fun AgendaScreen(agendaDao: AgendaDao) {
             Text("Agendar")
         }
         Spacer(modifier = Modifier.height(16.dp))
-        Column {
-            for (evento in agendaList) {
-                Text(
-                    text = "${evento.data} - ${evento.hora}: ${evento.evento}",
-                    modifier = Modifier.padding(8.dp)
-                )
-            }
+
+        if (agendaList.isNotEmpty()) {
+            AgendaList(agendaList = agendaList)
+        } else {
+            Text(text = "Nenhum evento agendado", modifier = Modifier.padding(8.dp))
         }
     }
 }
 
-//@Composable
-//fun AgendaList(agendaList: List<AgendaModel>) {
-//
-//}
+@Composable
+fun AgendaList(agendaList: List<AgendaModel>) {
+    Column {
+        for (evento in agendaList) {
+            Text(
+                text = "${evento.data} - ${evento.hora}: ${evento.evento}",
+                modifier = Modifier.padding(8.dp)
+            )
+        }
+    }
+}
 
 fun getCurrentMonthIndex(): Int {
     val calendar = Calendar.getInstance()

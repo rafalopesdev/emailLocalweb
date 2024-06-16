@@ -11,6 +11,13 @@ interface AgendaDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun salvar(agendaModel: AgendaModel): Long
 
+    @Delete
+    fun excluir(agendaModel: AgendaModel)
+
+    @Query("DELETE FROM tabela_agenda WHERE id = :id")
+    fun excluirById(id: Int)
+
     @Query("SELECT * FROM tabela_agenda")
     fun listarAgenda(): List<AgendaModel>
 }
+
