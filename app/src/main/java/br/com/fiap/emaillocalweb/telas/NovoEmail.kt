@@ -139,7 +139,10 @@ fun FormNovo(navController: NavController) {
         }
     }
     Column {
-        Column {
+        Column(
+            modifier = Modifier
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+        ) {
             OutlinedTextField(
                 modifier = Modifier.fillMaxWidth(),
                 value = nome,

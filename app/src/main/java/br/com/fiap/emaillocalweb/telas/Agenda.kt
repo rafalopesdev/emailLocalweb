@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,6 +23,7 @@ import androidx.navigation.NavController
 import br.com.fiap.emaillocalweb.AgendaDao
 import br.com.fiap.emaillocalweb.AgendaDb
 import br.com.fiap.emaillocalweb.AgendaModel
+import br.com.fiap.emaillocalweb.components.NavBar
 import com.google.accompanist.pager.*
 import generateMonthsOfYear
 import kotlinx.coroutines.CoroutineScope
@@ -40,46 +40,54 @@ fun Agenda(navController: NavController) {
     val pagerState = rememberPagerState(initialPage = getCurrentMonthIndex())
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState())
-            .padding(bottom = 56.dp) // Espaço para o NavBar
+        modifier = Modifier.fillMaxSize()
     ) {
         Text(
             text = "Calendários",
             fontSize = 24.sp,
             modifier = Modifier.padding(bottom = 5.dp)
         )
-        Box(
+        Column(
             modifier = Modifier
-                .height(270.dp)
-                .fillMaxWidth()
-                .background(Color(0xFFD20B3D))
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
         ) {
-            HorizontalPager(
-                count = monthsOfYear.size,
-                state = pagerState,
-                modifier = Modifier.fillMaxSize()
-            ) { page ->
-                CalendarView(monthsOfYear[page])
+            Box(
+                modifier = Modifier
+                    .height(280.dp)
+                    .fillMaxWidth()
+                    .background(Color(0xFFD20B3D))
+            ) {
+                HorizontalPager(
+                    count = monthsOfYear.size,
+                    state = pagerState,
+                    modifier = Modifier.fillMaxSize()
+                ) { page ->
+                    CalendarView(monthsOfYear[page])
+                }
             }
-
+            Text(
+                text = "Arraste >>",
+                fontSize = 12.sp,
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.End,
+                color = Color.Gray
+            )
         }
-        Text(
-            text = "Arraste >>",
-            fontSize = 12.sp,
-            modifier = Modifier.fillMaxWidth(),
-            textAlign = TextAlign.End,
-            color = Color.Gray
-        )
 
-        Text(
-            text = "Agendar seu evento",
-            fontSize = 24.sp,
-        )
-        AgendaScreen(agendaDao = agendaDao)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 8.dp)
+        ) {
+            Text(
+                text = "Agendar seu evento",
+                fontSize = 24.sp,
+                modifier = Modifier.padding(top = 16.dp)
+            )
+            AgendaScreen(agendaDao = agendaDao)
+        }
     }
+    NavBar(navController)
 }
 
 @Composable
@@ -115,15 +123,14 @@ fun AgendaScreen(agendaDao: AgendaDao) {
                 onValueChange = { data = it },
                 label = { Text("Data") },
                 modifier = Modifier.weight(1f),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                placeholder = { Text(text = "dd/mm/aaaa")}
+                placeholder = { Text(text = "dd/mm/aaaa") }
             )
             OutlinedTextField(
                 value = hora,
                 onValueChange = { hora = it },
                 label = { Text("Hora") },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text(text = "HH:mm")}
+                placeholder = { Text(text = "HH:mm") }
             )
         }
         OutlinedTextField(
@@ -169,17 +176,31 @@ fun AgendaScreen(agendaDao: AgendaDao) {
         Spacer(modifier = Modifier.height(16.dp))
 
         if (agendaList.isNotEmpty()) {
-            AgendaList(agendaList = agendaList, agendaDao = agendaDao, coroutineScope = coroutineScope, updateAgendaList = { agendaList = it })
+            AgendaList(
+                agendaList = agendaList,
+                agendaDao = agendaDao,
+                coroutineScope = coroutineScope,
+                updateAgendaList = { agendaList = it },
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+            )
         } else {
-            Text(text = "Nenhum evento agendado",
-                modifier = Modifier.padding(8.dp))
+            Text(
+                text = "Nenhum evento agendado",
+                modifier = Modifier.padding(8.dp)
+            )
         }
     }
 }
 
 @Composable
-fun AgendaList(agendaList: List<AgendaModel>, agendaDao: AgendaDao, coroutineScope: CoroutineScope, updateAgendaList: (List<AgendaModel>) -> Unit) {
-    Column {
+fun AgendaList(
+    agendaList: List<AgendaModel>,
+    agendaDao: AgendaDao,
+    coroutineScope: CoroutineScope,
+    updateAgendaList: (List<AgendaModel>) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
         for (evento in agendaList) {
             Row(
                 modifier = Modifier
