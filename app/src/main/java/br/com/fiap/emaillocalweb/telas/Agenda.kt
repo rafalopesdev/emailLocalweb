@@ -148,21 +148,34 @@ fun AgendaScreen(agendaDao: AgendaDao) {
                 onValueChange = { data = it },
                 label = { Text("Data") },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text(text = "dd/mm/aaaa") }
+                placeholder = { Text(text = "dd/mm/aaaa") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFD20B3D),
+                    unfocusedBorderColor = Color(0xFF253645),
+                    cursorColor = Color(0xFF253645)),
+
             )
             OutlinedTextField(
                 value = hora,
                 onValueChange = { hora = it },
                 label = { Text("Hora") },
                 modifier = Modifier.weight(1f),
-                placeholder = { Text(text = "HH:mm") }
+                placeholder = { Text(text = "HH:mm") },
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Color(0xFFD20B3D),
+                    unfocusedBorderColor = Color(0xFF253645),
+                    cursorColor = Color(0xFF253645)),
             )
         }
         OutlinedTextField(
             value = evento,
             onValueChange = { evento = it },
             label = { Text("Evento") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = Color(0xFFD20B3D),
+                unfocusedBorderColor = Color(0xFF253645),
+                cursorColor = Color(0xFF253645)),
         )
         Spacer(modifier = Modifier.height(5.dp))
         Text(
