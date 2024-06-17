@@ -1,34 +1,27 @@
 package br.com.fiap.emaillocalweb.telas
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.rounded.AccountCircle
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.KeyboardArrowLeft
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
@@ -36,12 +29,12 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import br.com.fiap.emaillocalweb.EmailDb
 import br.com.fiap.emaillocalweb.EmailModel
 import br.com.fiap.emaillocalweb.components.NavBar
-
 
 @Composable
 fun ViewEmail(navController: NavHostController, emailId: String, seuEmail: String) {
@@ -53,54 +46,42 @@ fun ViewEmail(navController: NavHostController, emailId: String, seuEmail: Strin
 
     val textStyle = TextStyle(
         fontSize = 16.sp,
-        color = Color.Black,
-        // Adicione outras propriedades de estilo conforme necessário
+        color = Color.Black
     )
 
     LaunchedEffect(emailId) {
         email = emailDao.getEmailById(emailId)
     }
 
-    email?.let {
-        Column(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            //.padding(16.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
-                .fillMaxSize()
-                .padding(top = 8.dp, start = 15.dp, end = 15.dp)
-
+                .fillMaxWidth()
+                .background(Color(0xFF253645))
         ) {
-            IconButton(
-                modifier = Modifier.background(Color.Green),
-                onClick = { navController.navigate("enviados")
-                }
+            val interactionSourceEntrar = remember { MutableInteractionSource() }
+            val isPressedEntrar by interactionSourceEntrar.collectIsPressedAsState()
+
+            Button(
+                onClick = { navController.navigate("caixaEntrada") },
+                interactionSource = interactionSourceEntrar,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = if (isPressedEntrar) Color(0xFFD20B3D) else Color.Transparent,
+                    contentColor = Color(0xFFD20B3D)
+                ),
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack,
-                    contentDescription = "Excluir",
-                    tint = Color.Gray,
+                    imageVector = Icons.Outlined.KeyboardArrowLeft,
+                    contentDescription = "Arrow left",
+                    modifier = Modifier.size(50.dp)
                 )
             }
-            Spacer(modifier = Modifier.height(30.dp))
-            Column {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Nome: ")
-                        }
-                        append("$seuEmail")
-                    },
-                    style = textStyle
-                )
-
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
-                            append("Email: ")
-                        }
-                        append(it.email)
-                    },
-                    style = textStyle
-                )
-
+            email?.let {
                 Text(
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
@@ -108,9 +89,71 @@ fun ViewEmail(navController: NavHostController, emailId: String, seuEmail: Strin
                         }
                         append(it.assunto)
                     },
-                    style = textStyle
+                    style = textStyle.copy(
+                        color = Color.White,
+                        fontSize = 22.sp
+                    ),
+                    modifier = Modifier.padding(start = 16.dp)
                 )
+            }
+        }
+
+        email?.let {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 15.dp, vertical = 8.dp)
+            ) {
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.AccountCircle,
+                        contentDescription = "Entrada",
+                        modifier = Modifier.size(45.dp),
+                        tint = Color(0xFFD20B3D)
+                    )
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("De: ")
+                            }
+                            append(seuEmail)
+                        },
+                        style = textStyle,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Divider(color = Color.Gray, thickness = 2.dp)
+
+                Row(modifier = Modifier.padding(8.dp),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.AccountCircle,
+                        contentDescription = "user",
+                        modifier = Modifier.size(45.dp),
+                        tint = Color(0xFF253645)
+                    )
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
+                                append("Para: ")
+                            }
+                            append(it.email)
+                        },
+                        style = textStyle,
+                        modifier = Modifier.padding(start = 8.dp)
+                    )
+                }
+
+                Divider(color = Color.Gray, thickness = 2.dp)
+
                 Text(
+                    modifier = Modifier.padding(vertical = 8.dp),
                     text = buildAnnotatedString {
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Mensagem: ")
@@ -119,49 +162,50 @@ fun ViewEmail(navController: NavHostController, emailId: String, seuEmail: Strin
                     },
                     style = textStyle
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(top = 16.dp),
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    val interactionSourceEntrar = remember { MutableInteractionSource() }
-                    val isPressedEntrar = interactionSourceEntrar.collectIsPressedAsState().value
+                    val interactionSourceButton1 = remember { MutableInteractionSource() }
+                    val isPressedButton1 by interactionSourceButton1.collectIsPressedAsState()
 
                     Button(
-                        modifier = Modifier.padding(end = 10.dp),
+                        modifier = Modifier
+                            .padding(end = 10.dp)
+                            .width(150.dp)
+                            .height(40.dp),
                         onClick = { navController.navigate("enviados") },
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isPressedEntrar) Color(0xFF253645) else Color(0xFFD20B3D),
+                            containerColor = if (isPressedButton1) Color(0xFF253645) else Color(0xFFD20B3D),
                             contentColor = Color.White
                         ),
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(text = "Responder")
-                            Spacer(modifier = Modifier.width(10.dp))
-                        }
+                        Text(text = "Voltar")
                     }
 
+                    val interactionSourceButton2 = remember { MutableInteractionSource() }
+                    val isPressedButton2 by interactionSourceButton2.collectIsPressedAsState()
+
                     Button(
-                        onClick = { navController.navigate("enviados") },
-                                colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isPressedEntrar) Color(0xFF253645) else Color(0xFFD20B3D),
-                        contentColor = Color.White
-                    ),
+                        onClick = { navController.navigate("novoEmail") },
+                        modifier = Modifier
+                            .width(150.dp)
+                            .height(40.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = if (isPressedButton2) Color(0xFF253645) else Color(0xFFD20B3D),
+                            contentColor = Color.White
+                        ),
                     ) {
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(text = "Responder")
-                            Spacer(modifier = Modifier.width(10.dp))
-                        }
+                        Text(text = "Responder")
                     }
                 }
             }
-            NavBar(navController)
         }
     }
+    NavBar(navController)
 }
-
-

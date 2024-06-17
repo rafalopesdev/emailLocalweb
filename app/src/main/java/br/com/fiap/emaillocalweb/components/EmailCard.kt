@@ -75,10 +75,12 @@ fun EmailCard(
                 .padding(10.dp)
                 .fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.Top
+            verticalAlignment = Alignment.CenterVertically
 
 
         ) {
+            Column {
+
             Image(
                 painter = painterResource(id = R.drawable.iconperson),
                 contentDescription = "imagem logo",
@@ -87,7 +89,7 @@ fun EmailCard(
                 //.padding(top = 10.dp
                 //.background(Color.Red),
 
-            )
+            )}
 
             Column(
 
@@ -106,7 +108,12 @@ fun EmailCard(
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Para: ")
                         }
-                        append(email.email)
+                        val truncatedEmail = if (email.email.length > 16) {
+                            email.email.take(14) + "..."
+                        } else {
+                            email.email
+                        }
+                        append(truncatedEmail)
                     },
                     style = textStyle
                 )
@@ -115,7 +122,12 @@ fun EmailCard(
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Assunto: ")
                         }
-                        append(email.assunto)
+                        val truncatedAssunto = if (email.assunto.length > 10) {
+                            email.assunto.take(10) + "..."
+                        } else {
+                            email.assunto
+                        }
+                        append(truncatedAssunto)
                     },
                     style = textStyle
                 )
@@ -137,18 +149,14 @@ fun EmailCard(
                 )
             }
 
-            Row(
-                horizontalArrangement = Arrangement.Start
-
-            ) {
+            Column {
                 Text(
                     text = "${email.horario}",
                     fontSize = 10.sp
                 )
                 IconButton(
                     modifier = Modifier
-                        .padding(0.dp)
-                        .align(Alignment.Top),
+                        .padding(0.dp),
 
                     onClick = {onDelete(email)}
 
@@ -159,7 +167,6 @@ fun EmailCard(
                         tint = Color.Gray,
                         modifier = Modifier
                             .padding(0.dp)
-                            .align(Alignment.Top)
                     )
                 }
             }

@@ -1,11 +1,14 @@
 package br.com.fiap.emaillocalweb.telas
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -17,17 +20,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import br.com.fiap.emaillocalweb.EmailDb
 import br.com.fiap.emaillocalweb.EmailModel
+import br.com.fiap.emaillocalweb.R
 import br.com.fiap.emaillocalweb.components.EmailCard
 import br.com.fiap.emaillocalweb.components.NavBar
+import br.com.fiap.emaillocalweb.components.Profile
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,14 +55,28 @@ fun Enviados(navController: NavController, seuEmail: String) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+    ) {
+        Profile(navController)
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
             .padding(top = 8.dp, start = 8.dp, end = 8.dp)
     ) {
-        Text(
-            modifier = Modifier.padding(16.dp),
-            text = "Enviados",
-            fontSize = 26.sp,
-            fontWeight = FontWeight.Bold
-        )
+        Row (verticalAlignment = Alignment.CenterVertically) {
+            Image(
+                painter = painterResource(id = R.drawable.logolocaw), contentDescription = "imagem logo",
+                modifier = Modifier.size(35.dp)
+
+            )
+            Text(
+                modifier = Modifier.padding(12.dp),
+                text = "Enviados",
+                fontSize = 26.sp,
+                fontWeight = FontWeight.Bold
+            )
+        }
         Box(
             modifier = Modifier
                 .fillMaxWidth()
@@ -81,8 +102,10 @@ fun Enviados(navController: NavController, seuEmail: String) {
             }
 
         }
-        NavBar(navController)
+
     }
+    }
+    NavBar(navController)
 }
 
 

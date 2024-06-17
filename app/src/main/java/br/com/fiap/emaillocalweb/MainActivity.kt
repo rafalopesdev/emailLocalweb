@@ -34,6 +34,7 @@ class MainActivity<NavHostController> : ComponentActivity() {
                         startDestination = "splash"
                     )
                     {
+                        composable(route = "profile"){ SplashScreen(navController)}
                         composable(route = "splash"){ SplashScreen(navController)}
                         composable(route = "login"){ Login(navController)}
                         composable(route = "cadastro"){ Cadastro(navController) }

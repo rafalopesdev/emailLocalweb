@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,11 +44,11 @@ fun SplashScreen(navController: NavController) {
             .fillMaxSize(),
         verticalArrangement = Arrangement.SpaceBetween
     ) {
+
         Card(
             modifier = Modifier
                 .size(width = 120.dp, height = 40.dp)
                 .align(Alignment.End),
-
             shape = RoundedCornerShape(
                 bottomStart = 16.dp
             ),
@@ -83,7 +84,7 @@ fun SplashScreen(navController: NavController) {
             )
 
             Button(
-                onClick = {navController.navigate("login")},
+                onClick = { navController.navigate("login") },
                 interactionSource = interactionSourceLogin,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isPressedLogin) Color(0xFFD20B3D) else Color(0xFF253645),
@@ -101,7 +102,7 @@ fun SplashScreen(navController: NavController) {
             Spacer(modifier = Modifier.height(10.dp))
 
             Button(
-                onClick = {navController.navigate("cadastro")},
+                onClick = { navController.navigate("cadastro") },
                 interactionSource = interactionSourceCadastro,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = if (isPressedCadastro) Color(0xFFD20B3D) else Color(0xFF253645),
@@ -115,7 +116,6 @@ fun SplashScreen(navController: NavController) {
                 Text(text = "Cadastrar")
                 Icon(imageVector = Icons.Outlined.ArrowForward, contentDescription = "")
             }
-
             Card(
                 modifier = Modifier
                     .size(width = 120.dp, height = 40.dp)
@@ -123,10 +123,10 @@ fun SplashScreen(navController: NavController) {
                     .offset(y = 144.dp),
                 shape = RoundedCornerShape(topEnd = 16.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFFD20B3D))
-            ) {
-                // Empty Card
-            }
-        }
-    }
-}
+            ) { }
 
+        }
+
+    }
+
+}
