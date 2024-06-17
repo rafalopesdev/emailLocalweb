@@ -21,7 +21,8 @@ fun CalendarView(currentMonth: YearMonth) {
     val firstDayOfMonth = currentMonth.atDay(1).dayOfWeek.value % 7 // Adjust for 0-based indexing
 
     Column(
-        modifier = Modifier.padding(16.dp),
+        modifier = Modifier
+            .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
@@ -29,7 +30,8 @@ fun CalendarView(currentMonth: YearMonth) {
             fontSize = 30.sp,
             color = Color.White,
             fontWeight = FontWeight.Bold ,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier
+                .padding(bottom = 16.dp)
         )
         DaysOfWeekHeader()
         DaysGrid(daysInMonth, firstDayOfMonth)
