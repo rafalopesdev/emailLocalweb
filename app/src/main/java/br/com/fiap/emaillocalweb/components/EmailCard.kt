@@ -136,9 +136,9 @@ fun EmailCard(
                         withStyle(style = SpanStyle(fontWeight = FontWeight.Bold)) {
                             append("Mensagem: ")
                         }
-                        if (email.message.split(" ").size > 2) {
+                        if (email.message.split(" ").size > 1) {
                             // Se a mensagem tiver mais de 5 palavras, exibe apenas as primeiras 5 palavras
-                            append(email.message.split(" ").take(2).joinToString(" "))
+                            append(email.message.split(" ").take(1).joinToString(" "))
                             append("...")
                         } else {
                             // Caso contrário, exibe a mensagem completa

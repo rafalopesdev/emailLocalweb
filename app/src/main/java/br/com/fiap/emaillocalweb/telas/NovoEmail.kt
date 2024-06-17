@@ -182,7 +182,7 @@ fun FormNovo(navController: NavController) {
             OutlinedTextField(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .heightIn(min = 250.dp),
+                    .heightIn(min = 150.dp),
                 maxLines = Int.MAX_VALUE,
                 textStyle = TextStyle(fontSize = 16.sp),
                 shape = RoundedCornerShape(8.dp),

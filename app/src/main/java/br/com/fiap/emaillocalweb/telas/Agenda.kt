@@ -1,11 +1,13 @@
 package br.com.fiap.emaillocalweb.telas
 
 import CalendarView
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,8 +16,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,7 +29,9 @@ import androidx.navigation.NavController
 import br.com.fiap.emaillocalweb.AgendaDao
 import br.com.fiap.emaillocalweb.AgendaDb
 import br.com.fiap.emaillocalweb.AgendaModel
+import br.com.fiap.emaillocalweb.R
 import br.com.fiap.emaillocalweb.components.NavBar
+import br.com.fiap.emaillocalweb.components.Profile
 import com.google.accompanist.pager.*
 import generateMonthsOfYear
 import kotlinx.coroutines.CoroutineScope
@@ -42,29 +50,47 @@ fun Agenda(navController: NavController) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Calendários",
-            fontSize = 24.sp,
-            modifier = Modifier.padding(bottom = 5.dp)
-        )
+        Profile(navController)
         Column(
             modifier = Modifier
                 .padding(top = 8.dp, start = 8.dp, end = 8.dp)
+                .padding(bottom = 100.dp)
+                .weight(1f)
+                .verticalScroll(rememberScrollState())
+
         ) {
+            Row (verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.logolocaw), contentDescription = "imagem logo",
+                    modifier = Modifier.size(35.dp)
+
+                )
+                Text(
+                    modifier = Modifier.padding(12.dp),
+                    text = "Calendário",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
             Box(
                 modifier = Modifier
                     .height(280.dp)
                     .fillMaxWidth()
-                    .background(Color(0xFFD20B3D))
+                    .background(Color(0xFFD20B3D), RoundedCornerShape(15.dp))
             ) {
+
                 HorizontalPager(
                     count = monthsOfYear.size,
                     state = pagerState,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxSize(),
+
                 ) { page ->
                     CalendarView(monthsOfYear[page])
                 }
             }
+            Spacer(modifier = Modifier.height(5.dp))
             Text(
                 text = "Arraste >>",
                 fontSize = 12.sp,
@@ -72,19 +98,18 @@ fun Agenda(navController: NavController) {
                 textAlign = TextAlign.End,
                 color = Color.Gray
             )
-        }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
 
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp)
-        ) {
-            Text(
-                text = "Agendar seu evento",
-                fontSize = 24.sp,
-                modifier = Modifier.padding(top = 16.dp)
-            )
-            AgendaScreen(agendaDao = agendaDao)
+            ) {
+                Text(
+                    text = "Agendar seu evento",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
+                )
+                AgendaScreen(agendaDao = agendaDao)
+            }
         }
     }
     NavBar(navController)
@@ -147,7 +172,7 @@ fun AgendaScreen(agendaDao: AgendaDao) {
             textAlign = TextAlign.End,
             color = Color.Gray
         )
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(5.dp))
         val interactionSourceEntrar = remember { MutableInteractionSource() }
         val isPressedEntrar = interactionSourceEntrar.collectIsPressedAsState().value
         val allFieldsFilled = data.isNotEmpty() && hora.isNotEmpty() && evento.isNotEmpty()
@@ -172,16 +197,14 @@ fun AgendaScreen(agendaDao: AgendaDao) {
         ) {
             Text("Agendar")
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
+        Spacer(modifier = Modifier.height(5.dp))
         if (agendaList.isNotEmpty()) {
             AgendaList(
                 agendaList = agendaList,
                 agendaDao = agendaDao,
                 coroutineScope = coroutineScope,
                 updateAgendaList = { agendaList = it },
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+
             )
         } else {
             Text(
@@ -198,15 +221,15 @@ fun AgendaList(
     agendaDao: AgendaDao,
     coroutineScope: CoroutineScope,
     updateAgendaList: (List<AgendaModel>) -> Unit,
-    modifier: Modifier = Modifier
 ) {
-    Column(modifier = modifier) {
+    Column {
         for (evento in agendaList) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(8.dp),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(text = "${evento.data} - ${evento.hora}: ${evento.evento}")
                 IconButton(

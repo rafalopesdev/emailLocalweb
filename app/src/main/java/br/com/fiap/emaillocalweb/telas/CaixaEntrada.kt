@@ -95,7 +95,7 @@ fun CaixaEntrada(navController: NavController, seuEmail: String) {
                     LazyColumn(
                         modifier = Modifier.fillMaxSize()
                     ) {
-                        items(emails) { email ->
+                        items(filteredEmails) { email ->  // Alterado para usar filteredEmails
                             EmailCard(
                                 email = email,
                                 seuEmail = seuEmail,
