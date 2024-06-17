@@ -57,53 +57,52 @@ fun Enviados(navController: NavController, seuEmail: String) {
             .fillMaxSize()
     ) {
         Profile(navController)
-
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 8.dp, start = 8.dp, end = 8.dp)
-    ) {
-        Row (verticalAlignment = Alignment.CenterVertically) {
-            Image(
-                painter = painterResource(id = R.drawable.logolocaw), contentDescription = "imagem logo",
-                modifier = Modifier.size(35.dp)
-
-            )
-            Text(
-                modifier = Modifier.padding(12.dp),
-                text = "Enviados",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold
-            )
-        }
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(570.dp)
+                .fillMaxSize()
+                .padding(top = 8.dp, start = 8.dp, end = 8.dp)
         ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Image(
+                    painter = painterResource(id = R.drawable.logolocaw),
+                    contentDescription = "imagem logo",
+                    modifier = Modifier.size(35.dp)
+
+                )
+                Text(
+                    modifier = Modifier.padding(12.dp),
+                    text = "Enviados",
+                    fontSize = 26.sp,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(570.dp)
             ) {
-                items(emails) { email ->
-                    EmailCard(
-                        email = email,
-                        seuEmail = seuEmail,
-                        navController = navController,
-                        onDelete = { emailToDelete ->
-                            CoroutineScope(Dispatchers.IO).launch {
-                                emailDao.excluir(emailToDelete)
-                                emails = emailDao.listarEmails()
-                            }
-                        },
-                    )
-                    Divider(color = Color.Gray, thickness = 1.dp)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(emails) { email ->
+                        EmailCard(
+                            email = email,
+                            seuEmail = seuEmail,
+                            navController = navController,
+                            onDelete = { emailToDelete ->
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    emailDao.excluir(emailToDelete)
+                                    emails = emailDao.listarEmails()
+                                }
+                            },
+                        )
+                        Divider(color = Color.Gray, thickness = 1.dp)
+                    }
                 }
+
             }
 
         }
-
-    }
     }
     NavBar(navController)
 }

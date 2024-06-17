@@ -113,6 +113,5 @@ fun CaixaEntrada(navController: NavController, seuEmail: String) {
                 }
             }
         }
-
         NavBar(navController)
     }
