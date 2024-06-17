@@ -6,6 +6,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +49,7 @@ fun Agenda(navController: NavController) {
         Text(
             text = "Calendários",
             fontSize = 24.sp,
-            modifier = Modifier.padding(bottom = 16.dp)
+            modifier = Modifier.padding(bottom = 5.dp)
         )
         Box(
             modifier = Modifier
@@ -66,7 +68,7 @@ fun Agenda(navController: NavController) {
         }
         Text(
             text = "Arraste >>",
-            fontSize = 14.sp,
+            fontSize = 12.sp,
             modifier = Modifier.fillMaxWidth(),
             textAlign = TextAlign.End,
             color = Color.Gray
@@ -113,6 +115,7 @@ fun AgendaScreen(agendaDao: AgendaDao) {
                 onValueChange = { data = it },
                 label = { Text("Data") },
                 modifier = Modifier.weight(1f),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 placeholder = { Text(text = "dd/mm/aaaa")}
             )
             OutlinedTextField(
@@ -208,8 +211,6 @@ fun AgendaList(agendaList: List<AgendaModel>, agendaDao: AgendaDao, coroutineSco
         }
     }
 }
-
-
 
 fun getCurrentMonthIndex(): Int {
     val calendar = Calendar.getInstance()
